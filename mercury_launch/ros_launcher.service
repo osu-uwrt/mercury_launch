@@ -19,7 +19,7 @@ StartLimitBurst=5
 
 [Service]
 # Command to launch the service
-ExecStart=/bin/bash -c 'source /home/ros/colcon_deploy/install/setup.bash; source /home/ros/uwrt_config/source/zenoh_server.bash; python3 /home/ros/colcon_deploy/install/mercury_launch/lib/mercury_launch/launcher --systemd --start-discovery-server'
+ExecStart=/bin/bash -c 'source /home/ros/colcon_deploy/install/setup.bash; source /home/ros/mercury_orin/micro-ros-agent/install/setup.bash; source /home/ros/mercury_orin/zed_wrapper/install/setup.bash; source /home/ros/uwrt_config/source/zenoh_server.bash; python3 /home/ros/colcon_deploy/install/mercury_launch/lib/mercury_launch/launcher --systemd --start-discovery-server'
 WorkingDirectory=/home/ros
 User=ros
 Group=ros

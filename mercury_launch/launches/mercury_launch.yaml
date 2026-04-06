@@ -1,0 +1,77 @@
+launches: [
+  {
+    package: "mercury_hardware",
+    file: "hardware.launch.py",
+   args: [
+      "robot:=mercury",
+      "imu_port:=/dev/ttyTHS1",
+      "imu_frame_id:=mercury/imu_link"
+    ],
+    topics: [
+      "/mercury/vectornav/imu", "sensor_msgs/msg/Imu", "0",
+      "/mercury/state/firmware", "mercury_msgs/msg/FirmwareStatus", "0",
+      "/mercury/state/depth/raw", "mercury_msgs/msg/Depth", "0"
+    ]
+  },
+  {
+    package: "mercury_camera",
+    file: "zed.launch.py",
+    args: [
+      "robot:=mercury",
+    ],
+    topics: [ 
+      "/mercury/ffc/zed_node/rgb/camera_info", "sensor_msgs/msg/CameraInfo", "0"
+    ]
+  },
+  {
+    package: "mercury_hardware",
+    file: "navigation.launch.py",
+    args: [
+      "robot:=mercury"
+    ],
+    topics: [
+      "/mercury/joint_states", "sensor_msgs/msg/JointState", "0",
+      "/mercury/odometry/filtered", "nav_msgs/msg/Odometry", "0",
+      "/mercury/depth/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
+      "/tf", "tf2_msgs/msg/TFMessage", "0"
+    ]
+  },
+  {
+    package: "mercury_mapping",
+    file: mapping.launch.py,
+    args: [
+      "robot:=mercury"
+    ],
+    topics: [ ]
+  },
+  {
+    package: "mercury_controller",
+    file: "controller.launch.py",
+    args: [
+      "robot:=mercury"
+    ],
+    topics: [
+      "/mercury/thruster_forces", "std_msgs/msg/Float32MultiArray", "0",
+      "/mercury/command/requested_rpm", "mercury_msgs/msg/DshotCommand", "0",
+      "/mercury/controller/FF_body_force", "geometry_msgs/msg/Twist", "0"
+    ]
+  },
+  {
+    package: "tensor_detector",
+    file: "tensorrt.launch.py",
+    args: [
+      "robot:=mercury"
+    ],
+    topics: [ 
+      "/mercury/yolo", "sensor_msgs/msg/Image", "0"
+    ]
+  },
+  {
+    package: "mercury_autonomy",
+    file: "autonomy.launch.py",
+    args: [
+      "robot:=mercury"
+    ],
+    topics: [ ]
+  }
+]
