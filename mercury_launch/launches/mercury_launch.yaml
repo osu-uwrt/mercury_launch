@@ -14,16 +14,6 @@ launches: [
     ]
   },
   {
-    package: "mercury_camera",
-    file: "zed.launch.py",
-    args: [
-      "robot:=mercury",
-    ],
-    topics: [ 
-      "/mercury/ffc/zed_node/rgb/camera_info", "sensor_msgs/msg/CameraInfo", "0"
-    ]
-  },
-  {
     package: "mercury_hardware",
     file: "navigation.launch.py",
     args: [
@@ -34,6 +24,16 @@ launches: [
       "/mercury/odometry/filtered", "nav_msgs/msg/Odometry", "0",
       "/mercury/depth/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
       "/tf", "tf2_msgs/msg/TFMessage", "0"
+    ]
+  },
+  {
+    package: "mercury_camera",
+    file: "zed.launch.py",
+    args: [
+      "robot:=mercury",
+    ],
+    topics: [ 
+      "/mercury/ffc/zed_node/status/heartbeat", "zed_msgs/msg/Heartbeat", "0"
     ]
   },
   {
