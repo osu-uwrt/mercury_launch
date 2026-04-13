@@ -17,10 +17,10 @@ launches: [
     package: "mercury_hardware",
     file: "navigation.launch.py",
     args: [
-      "robot:=mercury"
+      "robot:=mercury",
+      "tag_odom_enabled:=False"
     ],
     topics: [
-      "/mercury/joint_states", "sensor_msgs/msg/JointState", "0",
       "/mercury/odometry/filtered", "nav_msgs/msg/Odometry", "0",
       "/mercury/depth/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
       "/tf", "tf2_msgs/msg/TFMessage", "0"
