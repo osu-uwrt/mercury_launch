@@ -26,18 +26,21 @@ SUPER_SECRET_MONITOR_FLAG = "--super-secret-monitoring-flag"
 log_format = "[%(name)s] %(message)s"
 log_level = logging.INFO
 serverPort = int(os.environ.get("SERVER_PORT", "8080"))
-self_hosted_discovery_server_cmd = os.environ.get("DISCOVERY_SERVER_CMD", 
-    "ros2 run rmw_zenoh_cpp rmw_zenohd --config=/home/ros/osu-uwrt/release/scripts/dds_scripts/zenoh/zenoh_router_test.json5")
+self_hosted_discovery_server_cmd = os.environ.get("DISCOVERY_SERVER_CMD",
+                                                  "ros2 run rmw_zenoh_cpp rmw_zenohd --config=/home/ros/osu-uwrt/release/scripts/dds_scripts/zenoh/zenoh_router_test.json5")
 self_hosted_discovery_server_addr = "tcp/localhost:7447"
 
-HTML_SERVER_ROOT = os.path.join(get_package_share_directory("mercury_launch"), "pages")
+HTML_SERVER_ROOT = os.path.join(
+    get_package_share_directory("mercury_launch"), "pages")
 monitor_env = {
-    **os.environ, 
+    **os.environ,
     # COMMENT THESE OUT FOR FASTDDS
     "RMW_IMPLEMENTATION": "rmw_zenoh_cpp",
     # make sure it still finds your discovery server:
     "ZENOH_ROUTER_CONFIG_URI": os.environ.get("ZENOH_ROUTER_CONFIG_URI", "tcp/localhost:7447"),
 }
+
+
 class SDNotify:
     # systemd notifier socket, so we can send signals to systemd to report our state properly
 
@@ -45,7 +48,8 @@ class SDNotify:
         if systemd_mode:
             # Get socket address
             if not "NOTIFY_SOCKET" in os.environ:
-                raise RuntimeError("Could not find 'NOTIFY_SOCKET' Ensure this is running as a systemd unit!")
+                raise RuntimeError(
+                    "Could not find 'NOTIFY_SOCKET' Ensure this is running as a systemd unit!")
             sock_addr = os.environ["NOTIFY_SOCKET"]
             if sock_addr[0] == '@':
                 sock_addr = '\0' + sock_addr[1:]
@@ -78,7 +82,9 @@ class SDNotify:
         # This will restrict access of the socket to just this program, and
         # ensures that systemd is tracking this process instead of the ros2 run
         self._notify(f"MAINPID={os.getpid()}")
-        self._notify("NOTIFYACCESS=main")  # Restrict socket so only we can control it
+        # Restrict socket so only we can control it
+        self._notify("NOTIFYACCESS=main")
+
 
 class LinuxProcess:
     @staticmethod
@@ -108,61 +114,62 @@ class LinuxProcess:
         # Need to do some funky reading in case there's a space in the filename path
         self.pid = int(stat_list[0])
         if self.pid != pid:
-            raise RuntimeError("Linux reported stats for pid that we did not request!")
+            raise RuntimeError(
+                "Linux reported stats for pid that we did not request!")
         self.children: 'list[LinuxProcess]' = []
         self._args = None
         self._process_str = None
         self.comm = ' '.join(stat_list[1:-50]).lstrip('(').rstrip(')')
         self.state = self.lookup_state(stat_list[-50])
         self.ppid = int(stat_list[-49])
-        #self.pgrp = int(stat_list[-48])
-        #self.session = int(stat_list[-47])
-        #self.tty_nr = int(stat_list[-46])
-        #self.tpgid = int(stat_list[-45])
-        #self.flags = int(stat_list[-44])
-        #self.minflt = int(stat_list[-43])
-        #self.cminflt = int(stat_list[-42])
-        #self.majflt = int(stat_list[-41])
-        #self.cmajflt = int(stat_list[-40])
-        #self.utime = int(stat_list[-39])
-        #self.stime = int(stat_list[-38])
-        #self.cutime = int(stat_list[-37])
-        #self.cstime = int(stat_list[-36])
-        #self.priority = int(stat_list[-35])
-        #self.nice = int(stat_list[-34])
-        #self.num_threads = int(stat_list[-33])
-        #self.itrealvalue = int(stat_list[-32])
-        #self.starttime = int(stat_list[-31])
-        #self.vsize = int(stat_list[-30])
-        #self.rss = int(stat_list[-29])
-        #self.rsslim = int(stat_list[-28])
-        #self.startcode = int(stat_list[-27])
-        #self.endcode = int(stat_list[-26])
-        #self.startstack = int(stat_list[-25])
-        #self.kstkesp = int(stat_list[-24])
-        #self.kstkeip = int(stat_list[-23])
-        #self.signal = int(stat_list[-22])
-        #self.blocked = int(stat_list[-21])
-        #self.sigignore = int(stat_list[-20])
-        #self.sigcatch = int(stat_list[-19])
-        #self.wchan = int(stat_list[-18])
-        #self.nswap = int(stat_list[-17])
-        #self.cnswap = int(stat_list[-16])
-        #self.exit_signal = int(stat_list[-15])
-        #self.processor = int(stat_list[-14])
-        #self.rt_priority = int(stat_list[-13])
-        #self.policy = int(stat_list[-12])
-        #self.delayacct_blkio_ticks = int(stat_list[-11])
-        #self.guest_time = int(stat_list[-10])
-        #self.cguest_time = int(stat_list[-9])
-        #self.start_data = int(stat_list[-8])
-        #self.end_data = int(stat_list[-7])
-        #self.start_brk = int(stat_list[-6])
-        #self.arg_start = int(stat_list[-5])
-        #self.arg_end = int(stat_list[-4])
-        #self.env_start = int(stat_list[-3])
-        #self.env_end = int(stat_list[-2])
-        #self.exit_code = int(stat_list[-1])
+        # self.pgrp = int(stat_list[-48])
+        # self.session = int(stat_list[-47])
+        # self.tty_nr = int(stat_list[-46])
+        # self.tpgid = int(stat_list[-45])
+        # self.flags = int(stat_list[-44])
+        # self.minflt = int(stat_list[-43])
+        # self.cminflt = int(stat_list[-42])
+        # self.majflt = int(stat_list[-41])
+        # self.cmajflt = int(stat_list[-40])
+        # self.utime = int(stat_list[-39])
+        # self.stime = int(stat_list[-38])
+        # self.cutime = int(stat_list[-37])
+        # self.cstime = int(stat_list[-36])
+        # self.priority = int(stat_list[-35])
+        # self.nice = int(stat_list[-34])
+        # self.num_threads = int(stat_list[-33])
+        # self.itrealvalue = int(stat_list[-32])
+        # self.starttime = int(stat_list[-31])
+        # self.vsize = int(stat_list[-30])
+        # self.rss = int(stat_list[-29])
+        # self.rsslim = int(stat_list[-28])
+        # self.startcode = int(stat_list[-27])
+        # self.endcode = int(stat_list[-26])
+        # self.startstack = int(stat_list[-25])
+        # self.kstkesp = int(stat_list[-24])
+        # self.kstkeip = int(stat_list[-23])
+        # self.signal = int(stat_list[-22])
+        # self.blocked = int(stat_list[-21])
+        # self.sigignore = int(stat_list[-20])
+        # self.sigcatch = int(stat_list[-19])
+        # self.wchan = int(stat_list[-18])
+        # self.nswap = int(stat_list[-17])
+        # self.cnswap = int(stat_list[-16])
+        # self.exit_signal = int(stat_list[-15])
+        # self.processor = int(stat_list[-14])
+        # self.rt_priority = int(stat_list[-13])
+        # self.policy = int(stat_list[-12])
+        # self.delayacct_blkio_ticks = int(stat_list[-11])
+        # self.guest_time = int(stat_list[-10])
+        # self.cguest_time = int(stat_list[-9])
+        # self.start_data = int(stat_list[-8])
+        # self.end_data = int(stat_list[-7])
+        # self.start_brk = int(stat_list[-6])
+        # self.arg_start = int(stat_list[-5])
+        # self.arg_end = int(stat_list[-4])
+        # self.env_start = int(stat_list[-3])
+        # self.env_end = int(stat_list[-2])
+        # self.exit_code = int(stat_list[-1])
 
     def get_args(self):
         if self._args is not None:
@@ -206,36 +213,44 @@ class LinuxProcess:
 
         return f"{os.path.basename(exe_path)} ({self.pid})"
 
+
 def get_service_cgroup():
     with open('/proc/self/cgroup') as f:
         groups = f.readlines()
         if len(groups) == 0:
             raise RuntimeError("Process is not part of a cgroup")
         elif len(groups) > 1:
-            group_map = dict(map(lambda x: (int(x.split(':')[0]), x.split(':')[2].strip()), groups))
+            group_map = dict(
+                map(lambda x: (int(x.split(':')[0]), x.split(':')[2].strip()), groups))
             path = group_map[0]
-            path = path.strip('/') # Remove both leading and trailing slash for service detection and os.path.join
+            # Remove both leading and trailing slash for service detection and os.path.join
+            path = path.strip('/')
             if not path.endswith('.service'):
                 raise RuntimeError(f"Process is not in a service top level cgroup! (found {path})\n"
-                                "Make sure you run this program as a service in --systemd mode!")
+                                   "Make sure you run this program as a service in --systemd mode!")
             sysfs_path = os.path.join('/sys/fs/cgroup/systemd', path)
             if not os.path.exists(sysfs_path):
-                raise RuntimeError(f"Could not find cgroup info in expected directory: {sysfs_path}")
+                raise RuntimeError(
+                    f"Could not find cgroup info in expected directory: {sysfs_path}")
             return sysfs_path
         else:
             # cgroup v2
             group = groups[0].strip()
             hid, controllers, path = group.split(":")
             if hid != "0" or controllers != "":
-                raise RuntimeError("Invalid cgroup v2 definition (maybe v1 system?)")
-            path = path.strip('/') # Remove both leading and trailing slash for service detection and os.path.join
+                raise RuntimeError(
+                    "Invalid cgroup v2 definition (maybe v1 system?)")
+            # Remove both leading and trailing slash for service detection and os.path.join
+            path = path.strip('/')
             if not path.endswith('.service'):
                 raise RuntimeError(f"Process is not in a service top level cgroup! (found {path})\n"
-                                "Make sure you run this program as a service in --systemd mode!")
+                                   "Make sure you run this program as a service in --systemd mode!")
             sysfs_path = os.path.join("/sys/fs/cgroup", path)
             if not os.path.exists(sysfs_path):
-                raise RuntimeError(f"Could not find cgroup info in expected directory: {sysfs_path}")
+                raise RuntimeError(
+                    f"Could not find cgroup info in expected directory: {sysfs_path}")
             return sysfs_path
+
 
 def get_cgroup_processes(cgroup_path):
     with open(os.path.join(cgroup_path, "cgroup.procs")) as f:
@@ -251,11 +266,13 @@ def get_cgroup_processes(cgroup_path):
             with open(f"/proc/{pid}/stat") as f:
                 lines = f.readlines()
                 if len(lines) != 1:
-                    raise RuntimeError(f"PID {pid} invalid line count: {len(lines)}")
+                    raise RuntimeError(
+                        f"PID {pid} invalid line count: {len(lines)}")
                 stat_str = lines[0].strip()
                 cgroup_processes[pid] = LinuxProcess(pid, stat_str)
         except FileNotFoundError:
-            print(f"Failed to fetch pid after reported alive: {pid}! (must have just died)... Ignoring", file=sys.stderr)
+            print(
+                f"Failed to fetch pid after reported alive: {pid}! (must have just died)... Ignoring", file=sys.stderr)
             continue
 
     # Need to consolidate all children processes under their launches
@@ -274,6 +291,7 @@ def get_cgroup_processes(cgroup_path):
     # Return dictionary of PIDs to direct children to speed up removal of active launches
     return dict(map(lambda x: (x.pid, x), direct_children))
 
+
 class LaunchState(enum.Enum):
     STOPPED = "stopped"
     STARTING = "starting"
@@ -282,25 +300,30 @@ class LaunchState(enum.Enum):
     STOPPING_ERROR = "stopping_error"
     ERROR = "error"
 
+
 class LaunchData:
     class LaunchTopic:
-        topic_re = re.compile(r"^(\/\w+)+$")  # Match at least 1 group of alpha-numeric chars starting with a slash
-        type_re = re.compile(r"^[a-zA-Z]\w*\/msg\/[a-zA-Z]\w*$")  # Match c_identifier/msg/c_identifier
+        # Match at least 1 group of alpha-numeric chars starting with a slash
+        topic_re = re.compile(r"^(\/\w+)+$")
+        # Match c_identifier/msg/c_identifier
+        type_re = re.compile(r"^[a-zA-Z]\w*\/msg\/[a-zA-Z]\w*$")
 
         def __init__(self, topic_data):
             self.name: str = topic_data[0]
             if not re.match(self.topic_re, self.name):
-                raise ValueError(f"Invalid Topic Name '{self.name}': Must start with / and be a valid topic name")
+                raise ValueError(
+                    f"Invalid Topic Name '{self.name}': Must start with / and be a valid topic name")
             self.type: str = topic_data[1]
             if not re.match(self.type_re, self.type):
-                raise ValueError(f"Invalid Topic Type '{self.type}': Must be in the form package/msg/MsgName")
+                raise ValueError(
+                    f"Invalid Topic Type '{self.type}': Must be in the form package/msg/MsgName")
 
             if topic_data[2] == "0":
                 self.is_sensor_data = False
             elif topic_data[2] == "1":
                 self.is_sensor_data = True
             else:
-                raise ValueError(f"Invalid is_sensor_data param for {self.name}: " + \
+                raise ValueError(f"Invalid is_sensor_data param for {self.name}: " +
                                  f"must be either \"0\" or \"1\", not \"{topic_data[2]}\"")
 
             self.seen = False
@@ -320,10 +343,12 @@ class LaunchData:
         self.is_zombie = False
         self.monitored_topics: 'list[LaunchData.LaunchTopic]' = []
         if len(launch["topics"]) % 3 != 0:
-            raise RuntimeError(f"Launch {self.friendly_name} has a malformed topic list")
+            raise RuntimeError(
+                f"Launch {self.friendly_name} has a malformed topic list")
 
         for i in range(0, len(launch["topics"]), 3):
-            self.monitored_topics.append(self.LaunchTopic(launch["topics"][i:i+3]))
+            self.monitored_topics.append(
+                self.LaunchTopic(launch["topics"][i:i+3]))
 
         self.args: str = launch["args"]
         self.logger = parent_logger.getChild(self.friendly_name)
@@ -337,7 +362,8 @@ class LaunchData:
         # Asyncio Control
         self._launch_task_inst: 'asyncio.Task | None' = None
         self._stop_launch_event: 'asyncio.Event | None' = None
-        self._broadcast_refresh_event = broadcast_refresh_event  # Notifies the server that the status has changed
+        # Notifies the server that the status has changed
+        self._broadcast_refresh_event = broadcast_refresh_event
 
     def _clear_monitored_topics(self):
         for topic in self.monitored_topics:
@@ -357,7 +383,8 @@ class LaunchData:
                 self.monitored_topics[topic_idx].seen = True
                 self._broadcast_refresh_event.set()
             else:
-                self.logger.warning(f"Unexpected index received on stdin: {topic_idx} ('{chr(topic_idx)}')")
+                self.logger.warning(
+                    f"Unexpected index received on stdin: {topic_idx} ('{chr(topic_idx)}')")
 
         # Wait for process to fully terminate
         await self._monitor_subproc.wait()
@@ -392,7 +419,8 @@ class LaunchData:
                     "state": state,
                     "data": line.rstrip('\n')
                 }
-                websockets.broadcast(self.output_websockets, json.dumps(log_obj, default=json_encode_default))
+                websockets.broadcast(self.output_websockets, json.dumps(
+                    log_obj, default=json_encode_default))
 
         await self._launch_subproc.wait()
 
@@ -417,7 +445,8 @@ class LaunchData:
 
         # pipe stdout to this process to receive topic notifications, and in new session to isolate Control+C
         if len(self.monitored_topics) > 0:
-            popen_args = ["/proc/self/exe", __file__, SUPER_SECRET_MONITOR_FLAG]
+            popen_args = ["/proc/self/exe",
+                          __file__, SUPER_SECRET_MONITOR_FLAG]
             popen_args.extend(self._gen_monitor_cmd_args())
             self._monitor_subproc = await asyncio.create_subprocess_exec(*popen_args, stdout=asyncio.subprocess.PIPE,
                                                                          start_new_session=True, env=monitor_env)
@@ -433,12 +462,15 @@ class LaunchData:
 
         # Create all monitor tasks and events to stop the launch
         self._stop_launch_event = asyncio.Event()
-        stop_launch_wait_task = asyncio.create_task(self._stop_launch_event.wait(), name=self.id + "_stop_launcH_wait")
+        stop_launch_wait_task = asyncio.create_task(
+            self._stop_launch_event.wait(), name=self.id + "_stop_launcH_wait")
         if self._monitor_subproc is not None:
-            monitor_mon_task = asyncio.create_task(self._monitor_monitor_task(), name=self.id + "_monitor_mon")
+            monitor_mon_task = asyncio.create_task(
+                self._monitor_monitor_task(), name=self.id + "_monitor_mon")
         else:
             monitor_mon_task = None
-        launch_mon_task = asyncio.create_task(self._launch_monitor_task(), name=self.id + "_launch_mon")
+        launch_mon_task = asyncio.create_task(
+            self._launch_monitor_task(), name=self.id + "_launch_mon")
 
         wait_group = {launch_mon_task, stop_launch_wait_task}
         if monitor_mon_task is not None:
@@ -476,7 +508,8 @@ class LaunchData:
                         all_topics_seen = False
 
                 if not all_topics_seen:
-                    self.logger.error("Launch Monitor died before all topics seen")
+                    self.logger.error(
+                        "Launch Monitor died before all topics seen")
                     self.state = LaunchState.STOPPING_ERROR
                     break
 
@@ -494,7 +527,6 @@ class LaunchData:
                 # Launch must have crashed, stop the launch in an error state
                 self.state = LaunchState.STOPPING_ERROR
                 break
-
 
         # Stopping or stopping in error
         # Wait for all remaining processes
@@ -546,7 +578,6 @@ class LaunchData:
 
         self.logger.info(f"Launch Cleaned Up")
 
-
     def update_process_map(self, process_map: 'dict[int, LinuxProcess]'):
         # Extract the process info from the process map if provided
         if self._launch_subproc is not None and process_map is not None and self._launch_subproc.pid in process_map:
@@ -558,7 +589,6 @@ class LaunchData:
             self.monitor_procinfo = process_map.pop(self._monitor_subproc.pid)
         else:
             self.monitor_procinfo = None
-
 
     def _gen_monitor_cmd_args(self):
         for topic in self.monitored_topics:
@@ -589,25 +619,30 @@ class LaunchData:
 
         am_dead = self.is_zombie and self._launch_task_inst is None
         if am_dead and (self._launch_subproc is not None or self._monitor_subproc is not None):
-            raise RuntimeError("Launch task terminated without cleaning up processes!")
+            raise RuntimeError(
+                "Launch task terminated without cleaning up processes!")
         return am_dead
 
     def perform_launch(self):
         if self._launch_task_inst is not None:
             if not self._launch_task_inst.done():
-                raise RuntimeError("Attempting to start a launch when launch already in progress")
+                raise RuntimeError(
+                    "Attempting to start a launch when launch already in progress")
             else:
                 # Fetch result of task before clearing it so any exceptions can bubble up
                 self._launch_task_inst.result()
 
         self.state = LaunchState.STARTING
-        self._launch_task_inst = asyncio.create_task(self._launch_task(), name=self.id + "_launch_task")
+        self._launch_task_inst = asyncio.create_task(
+            self._launch_task(), name=self.id + "_launch_task")
 
     def term_launch(self):
         if self._stop_launch_event is None:
-            raise RuntimeError("Attempting to kill an already cleaned up launch")
+            raise RuntimeError(
+                "Attempting to kill an already cleaned up launch")
 
         self._stop_launch_event.set()
+
 
 def json_encode_default(o):
     if isinstance(o, LaunchState):
@@ -645,15 +680,17 @@ def json_encode_default(o):
         raise TypeError(f'Object of type {o.__class__.__name__} '
                         f'is not JSON serializable')
 
+
 async def event_wait(evt, timeout):
     # suppress TimeoutError because we'll return False in case of timeout
     with contextlib.suppress(asyncio.TimeoutError):
         await asyncio.wait_for(evt.wait(), timeout)
     return evt.is_set()
 
+
 class LaunchServer:
     class WebsocketHandler(logging.Handler):
-        def __init__(self, connections: set)-> None:
+        def __init__(self, connections: set) -> None:
             self._connections_weak = weakref.ref(connections)
             logging.Handler.__init__(self=self)
 
@@ -669,7 +706,8 @@ class LaunchServer:
                 "state": "global" if record.levelno < logging.ERROR else "global_error",
                 "data": record.getMessage()
             }
-            websockets.broadcast(connections, json.dumps(log_obj, default=json_encode_default))
+            websockets.broadcast(connections, json.dumps(
+                log_obj, default=json_encode_default))
 
     def __init__(self, systemd_mode: bool, start_discovery_server: bool) -> None:
         self.launches: 'list[LaunchData]' = []
@@ -678,7 +716,8 @@ class LaunchServer:
         self.systemd_mode = systemd_mode
         self.start_discovery_server = start_discovery_server
         self.connections = set()
-        self.default_log_connections = set()  # List of all connections to enable logs for a launch by default
+        # List of all connections to enable logs for a launch by default
+        self.default_log_connections = set()
 
         # Logging Config
         self.logger = logging.getLogger("mercury_launch")
@@ -688,10 +727,12 @@ class LaunchServer:
         # Load all launch entries
         pack_path = get_package_share_directory("mercury_launch")
         launch_entries = os.listdir(os.path.join(pack_path, "launches"))
-        self.launch_files = [x for x in launch_entries if x.endswith('.yaml') or x.endswith('.yml')]
+        self.launch_files = [x for x in launch_entries if x.endswith(
+            '.yaml') or x.endswith('.yml')]
 
         # Determine how the zenoh router is configured
-        self.discovery_server_pid = 0  # Holds PID of zenoh router if running for systemd orphan tracking
+        # Holds PID of zenoh router if running for systemd orphan tracking
+        self.discovery_server_pid = 0
         if start_discovery_server:
             self.discovery_status = "Self Hosted (OK)"
             self.discovery_status_color = "green"
@@ -739,11 +780,13 @@ class LaunchServer:
         with open(file_path, 'r') as file:
             launch_data = yaml.safe_load(file)["launches"]
             for launch in launch_data:
-                self.launches.append(LaunchData(launch, self.logger, self.broadcast_refresh_event))
+                self.launches.append(LaunchData(
+                    launch, self.logger, self.broadcast_refresh_event))
                 self.launches[-1].output_websockets = self.default_log_connections.copy()
 
     def _cleanup_dead_zombies(self):
-        self.launches[:] = [inst for inst in self.launches if not inst.is_dead_zombie]
+        self.launches[:] = [
+            inst for inst in self.launches if not inst.is_dead_zombie]
 
     def _generate_err(self, msg):
         return {"type": "error", "msg": msg}
@@ -753,16 +796,18 @@ class LaunchServer:
             # First, try to kill any existing zenoh routers on the same port to avoid conflicts
             try:
                 import subprocess
-                subprocess.run(["pkill", "-f", "rmw_zenohd"], check=False, capture_output=True)
+                subprocess.run(["pkill", "-f", "rmw_zenohd"],
+                               check=False, capture_output=True)
                 await asyncio.sleep(1)  # Give time for cleanup
             except:
                 pass
-            
-            self.logger.info(f"Starting Zenoh Router with command: {self_hosted_discovery_server_cmd}")
-            proc = await asyncio.create_subprocess_shell(self_hosted_discovery_server_cmd, 
-                                                       start_new_session=True,
-                                                       stdout=asyncio.subprocess.PIPE,
-                                                       stderr=asyncio.subprocess.PIPE)
+
+            self.logger.info(
+                f"Starting Zenoh Router with command: {self_hosted_discovery_server_cmd}")
+            proc = await asyncio.create_subprocess_shell(self_hosted_discovery_server_cmd,
+                                                         start_new_session=True,
+                                                         stdout=asyncio.subprocess.PIPE,
+                                                         stderr=asyncio.subprocess.PIPE)
             self.discovery_server_pid = proc.pid
 
             while not self.stop.is_set():
@@ -773,21 +818,25 @@ class LaunchServer:
                 if proc.returncode is not None:
                     # Get stdout and stderr to help debug
                     stdout, stderr = await proc.communicate()
-                    
+
                     # Send crash event to all the clients
                     self.discovery_status = "Self Hosted (CRASHED!)"
                     self.discovery_status_color = "red"
                     self.broadcast_refresh_event.set()
-                    self.logger.critical(f"Zenoh Router Died! (Exit Code: {proc.returncode})")
+                    self.logger.critical(
+                        f"Zenoh Router Died! (Exit Code: {proc.returncode})")
                     if stdout:
-                        self.logger.error(f"Zenoh Router stdout: {stdout.decode()}")
+                        self.logger.error(
+                            f"Zenoh Router stdout: {stdout.decode()}")
                     if stderr:
-                        self.logger.error(f"Zenoh Router stderr: {stderr.decode()}")
+                        self.logger.error(
+                            f"Zenoh Router stderr: {stderr.decode()}")
                     # Give half a second for the failure message to go out
                     await asyncio.sleep(0.5)
 
                     # Raise an exception (which will set the stop flag)
-                    raise RuntimeError(f"Zenoh Router Died (Exit Code: {proc.returncode})")
+                    raise RuntimeError(
+                        f"Zenoh Router Died (Exit Code: {proc.returncode})")
                 # Rate limit polling to once per second
                 await event_wait(self.stop, 1.0)
 
@@ -847,12 +896,14 @@ class LaunchServer:
             # If we are given a last launchfile and we don't have a launch selected, auto select that one
             # This makes loading right on startup quicker so you don't have to select the launch
             pack_path = get_package_share_directory("mercury_launch")
-            launch_filename = last_launchfile.replace('/', '')  # Path sanitization
+            launch_filename = last_launchfile.replace(
+                '/', '')  # Path sanitization
             launch_yaml = os.path.join(pack_path, "launches", launch_filename)
 
             # If the file exists, we're good to select it
             if os.path.isfile(launch_yaml):
-                self.logger.info(f"Auto-selecting last used launch definition '{launch_filename}'")
+                self.logger.info(
+                    f"Auto-selecting last used launch definition '{launch_filename}'")
                 self.load_file(launch_yaml)
                 self.broadcast_refresh_event.set()
 
@@ -874,7 +925,8 @@ class LaunchServer:
         # this route allows spawning the launch
         elif request["cmd"] == "start_launch":
             try:
-                launch_inst = next(x for x in self.launches if x.id == request["id"])
+                launch_inst = next(
+                    x for x in self.launches if x.id == request["id"])
             except StopIteration:
                 return self._generate_err("Invalid Launch ID")
 
@@ -887,7 +939,8 @@ class LaunchServer:
         # this route allows stopping a launch
         elif request["cmd"] == "stop_launch":
             try:
-                launch_inst = next(x for x in self.launches if x.id == request["id"])
+                launch_inst = next(
+                    x for x in self.launches if x.id == request["id"])
             except StopIteration:
                 return self._generate_err("Invalid Launch ID")
 
@@ -900,7 +953,8 @@ class LaunchServer:
         # this route allows stopping a launch
         elif request["cmd"] == "load_launch":
             pack_path = get_package_share_directory("mercury_launch")
-            launch_filename = request["file"].replace('/', '')  # Path sanitization
+            launch_filename = request["file"].replace(
+                '/', '')  # Path sanitization
             launch_yaml = os.path.join(pack_path, "launches", launch_filename)
 
             self.logger.info(f"Loading launch definition '{launch_filename}'")
@@ -939,7 +993,8 @@ class LaunchServer:
 
             enable = request["enable"]
             try:
-                launch_inst = next(x for x in self.launches if x.id == request["id"])
+                launch_inst = next(
+                    x for x in self.launches if x.id == request["id"])
             except StopIteration:
                 return self._generate_err("Invalid Launch ID")
 
@@ -950,7 +1005,6 @@ class LaunchServer:
 
             # Report the new logging enrollment
             return self.get_logging_enrollment(websocket)
-
 
     async def status_broadcast_task(self):
         try:
@@ -981,7 +1035,8 @@ class LaunchServer:
                 self.report_systemd_status()
 
                 # Broadcast the new server status
-                websockets.broadcast(self.connections, json.dumps(self.server_status, default=json_encode_default))
+                websockets.broadcast(self.connections, json.dumps(
+                    self.server_status, default=json_encode_default))
         finally:
             # We crashed, set the stop to tell the server to stop and retreive our exception
             self.stop.set()
@@ -1005,7 +1060,6 @@ class LaunchServer:
             "log_enrollment": self.get_logging_enrollment(websocket)
         }
 
-
     ########################################
     # Underlying Websocket Control Code
     ########################################
@@ -1028,7 +1082,8 @@ class LaunchServer:
         # - pretending to chroot to the current directory
         # - cancelling all redundant paths (/.. = /)
         # - making the path relative
-        sanitized_path = os.path.relpath(os.path.normpath(os.path.join("/", path)), "/")
+        sanitized_path = os.path.relpath(
+            os.path.normpath(os.path.join("/", path)), "/")
         file_path = os.path.join(HTML_SERVER_ROOT, sanitized_path)
         if os.path.isfile(file_path):
             return serve_file(file_path)
@@ -1084,16 +1139,19 @@ class LaunchServer:
 
         if self.start_discovery_server:
             os.environ["RMW_IMPLEMENTATION"] = "rmw_zenoh_cpp"
-            discovery_server_task = loop.create_task(self.run_discovery_server(), name="Zenoh Router Monitor")
+            discovery_server_task = loop.create_task(
+                self.run_discovery_server(), name="Zenoh Router Monitor")
         else:
             discovery_server_task = None
 
-        broadcast_task = loop.create_task(self.status_broadcast_task(), name="Status Broadcast Task")
+        broadcast_task = loop.create_task(
+            self.status_broadcast_task(), name="Status Broadcast Task")
         self.broadcast_refresh_event = asyncio.Event()
         try:
             async with websockets.serve(self.ws_conn_handler, "0.0.0.0", serverPort,
                                         process_request=self.process_request):
-                self.logger.info("Server started http://%s:%s" % (platform.node(), serverPort))
+                self.logger.info("Server started http://%s:%s" %
+                                 (platform.node(), serverPort))
 
                 self.sdnotify.report_ready()
                 await self.stop.wait()
@@ -1127,13 +1185,15 @@ class LaunchServer:
         # Keep looping until all launches are dead
         self._cleanup_dead_zombies()
         if len(self.launches) > 0:
-            self.logger.info("Cleaning up remaining child launches: " + ",".join(x.friendly_name for x in self.launches))
+            self.logger.info("Cleaning up remaining child launches: " +
+                             ",".join(x.friendly_name for x in self.launches))
             while len(self.launches) > 0:
                 await event_wait(self.broadcast_refresh_event, 1.0)
                 self.broadcast_refresh_event.clear()
                 self._cleanup_dead_zombies()
 
-        self.logger.info("Gracefully Terminated (All Child Launches Cleaned Up)")
+        self.logger.info(
+            "Gracefully Terminated (All Child Launches Cleaned Up)")
 
 
 ########################################
@@ -1157,7 +1217,7 @@ def do_child_monitor():
             self.has_called = False
 
         def callback(self, msg):
-            if(not self.has_called):
+            if (not self.has_called):
                 sys.stdout.buffer.write(bytearray([self.index]))
                 sys.stdout.buffer.flush()
                 self.has_called = True
@@ -1166,8 +1226,9 @@ def do_child_monitor():
                     exit(0)
 
     class ChildMonitor(Node):
-        def __init__(self, node_name: str, *, context = None, cli_args: 'list[str]' = None, namespace: str = None, use_global_arguments: bool = True, enable_rosout: bool = True, start_parameter_services: bool = True, parameter_overrides = None, allow_undeclared_parameters: bool = False, automatically_declare_parameters_from_overrides: bool = False) -> None:
-            super().__init__(node_name, context=context, cli_args=cli_args, namespace=namespace, use_global_arguments=use_global_arguments, enable_rosout=enable_rosout, start_parameter_services=start_parameter_services, parameter_overrides=parameter_overrides, allow_undeclared_parameters=allow_undeclared_parameters, automatically_declare_parameters_from_overrides=automatically_declare_parameters_from_overrides)
+        def __init__(self, node_name: str, *, context=None, cli_args: 'list[str]' = None, namespace: str = None, use_global_arguments: bool = True, enable_rosout: bool = True, start_parameter_services: bool = True, parameter_overrides=None, allow_undeclared_parameters: bool = False, automatically_declare_parameters_from_overrides: bool = False) -> None:
+            super().__init__(node_name, context=context, cli_args=cli_args, namespace=namespace, use_global_arguments=use_global_arguments, enable_rosout=enable_rosout, start_parameter_services=start_parameter_services,
+                             parameter_overrides=parameter_overrides, allow_undeclared_parameters=allow_undeclared_parameters, automatically_declare_parameters_from_overrides=automatically_declare_parameters_from_overrides)
             self.monitor_subs = list()
 
         def start_monitors(self, topics: list):
@@ -1175,11 +1236,14 @@ def do_child_monitor():
             for i in range(len(topics)):
                 topic_name = topics[i][0]
                 topic_type = str(topics[i][1]).split("/")
-                topic_qos = "qos_profile_system_default" if int(topics[i][2]) == 0 else "qos_profile_sensor_data" if int(topics[i][2]) == 1 else None
+                topic_qos = "qos_profile_system_default" if int(
+                    topics[i][2]) == 0 else "qos_profile_sensor_data" if int(topics[i][2]) == 1 else None
                 if topic_qos is None:
-                    raise RuntimeError("Invalid QOS: Must be 1 for sensor data, 0 for system default")
+                    raise RuntimeError(
+                        "Invalid QOS: Must be 1 for sensor data, 0 for system default")
 
-                logger.info(f"Monitoring {topics[i][0]} of type {topics[i][1]} with QOS {topic_qos}")
+                logger.info(
+                    f"Monitoring {topics[i][0]} of type {topics[i][1]} with QOS {topic_qos}")
 
                 # make the subscription
                 sub_cb = ChildMonitorCallback(self, i)
@@ -1187,8 +1251,10 @@ def do_child_monitor():
                 from rclpy.qos import qos_profile_sensor_data, qos_profile_system_default
 
                 sub = None
-                exec(f"from {topic_type[0]}.{topic_type[1]} import {topic_type[2]}", locals())
-                exec(f"sub = self.create_subscription({topic_type[2]}, '{topic_name}', sub_cb.callback, {topic_qos})", locals())
+                exec(
+                    f"from {topic_type[0]}.{topic_type[1]} import {topic_type[2]}", locals())
+                exec(
+                    f"sub = self.create_subscription({topic_type[2]}, '{topic_name}', sub_cb.callback, {topic_qos})", locals())
 
                 self.monitor_subs.append((sub, sub_cb))
 
@@ -1240,7 +1306,7 @@ def main():
             arg_begin_idx += 1
 
         # look for args now
-        args = sys.argv[arg_begin_idx :]
+        args = sys.argv[arg_begin_idx:]
 
         logger.info(f"args: {args}")
 
@@ -1263,7 +1329,8 @@ def main():
             systemd_mode = False
         if len(sys.argv) > 1 and "--start-discovery-server" in sys.argv:
             if not systemd_mode:
-                raise RuntimeError("Cannot start discovery server unless running in systemd")
+                raise RuntimeError(
+                    "Cannot start discovery server unless running in systemd")
             start_discovery_server = True
         else:
             start_discovery_server = False

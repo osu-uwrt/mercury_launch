@@ -19,7 +19,7 @@ launches: [
     args: [
       "robot:=mercury",
     ],
-    topics: [ 
+    topics: [
       "/mercury/ffc/zed_node/rgb/camera_info", "sensor_msgs/msg/CameraInfo", "0"
     ]
   },
@@ -62,7 +62,7 @@ launches: [
     args: [
       "robot:=mercury"
     ],
-    topics: [ 
+    topics: [
       "/mercury/yolo", "sensor_msgs/msg/Image", "0"
     ]
   },
