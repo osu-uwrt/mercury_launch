@@ -20,20 +20,22 @@ launches: [
       "robot:=mercury",
     ],
     topics: [
-      "/mercury/ffc/zed_node/rgb/camera_info", "sensor_msgs/msg/CameraInfo", "0"
+      "/mercury/ffc/zed_node/left/color/rect/camera_info", "sensor_msgs/msg/CameraInfo", "0"
     ]
   },
   {
     package: "mercury_hardware",
     file: "navigation.launch.py",
     args: [
-      "robot:=mercury"
+      "robot:=mercury",
+      "tag_odom_enabled:=True"
     ],
     topics: [
       "/mercury/joint_states", "sensor_msgs/msg/JointState", "0",
       "/mercury/odometry/filtered", "nav_msgs/msg/Odometry", "0",
       "/mercury/depth/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
-      "/tf", "tf2_msgs/msg/TFMessage", "0"
+      "/mercury/tag_odom/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
+      "/tf", "tf2_msgs/msg/TFMessage", "0",
     ]
   },
   {
