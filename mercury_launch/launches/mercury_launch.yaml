@@ -18,9 +18,10 @@ launches: [
     file: "zed.launch.py",
     args: [
       "robot:=mercury",
+      "picture_taker_enabled:=False"
     ],
     topics: [
-      "/mercury/ffc/zed_node/left/color/rect/camera_info", "sensor_msgs/msg/CameraInfo", "0"
+      "/mercury/ffc/zed_node/status/heartbeat", "zed_msgs/msg/Heartbeat", "0"
     ]
   },
   {
@@ -31,7 +32,6 @@ launches: [
       "tag_odom_enabled:=True"
     ],
     topics: [
-      "/mercury/joint_states", "sensor_msgs/msg/JointState", "0",
       "/mercury/odometry/filtered", "nav_msgs/msg/Odometry", "0",
       "/mercury/depth/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
       "/mercury/tag_odom/pose", "geometry_msgs/msg/PoseWithCovarianceStamped", "0",
